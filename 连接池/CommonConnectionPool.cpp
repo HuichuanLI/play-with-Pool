@@ -10,7 +10,7 @@ ConnectionPool *ConnectionPool::getConnectionPool() {
 
 // 从配置文件中加载配置项
 bool ConnectionPool::loadConfigFile() {
-    FILE *pf = fopen("/Users/lhc456/Desktop/c++/play-with-reactor/mysql.ini", "r");
+    FILE *pf = fopen("/Users/lhc456/Desktop/c++/play-with-reactor/连接池/mysql.ini", "r");
     if (pf == nullptr) {
         LOG("mysql.ini file is not exist!");
         return false;
