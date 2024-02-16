@@ -10,9 +10,6 @@ const int TASK_MAX_THRESHHOLD = INT32_MAX;
 const int THREAD_MAX_THRESHHOLD = 1024;
 const int THREAD_MAX_IDLE_TIME = 60; // 单位：秒
 
-Task::Task() {
-
-};
 
 
 // 线程池构造
@@ -56,7 +53,7 @@ void ThreadPool::setThreadSizeThreshHold(int threshhold) {
 }
 
 // 给线程池提交任务    用户调用该接口，传入任务对象，生产任务
-void ThreadPool::submitTask(std::shared_ptr<Task> sp) {
+Result ThreadPool::submitTask(std::shared_ptr<Task> sp) {
     // 获取锁
     std::unique_lock<std::mutex> lock(taskQueMtx_);
     // 线程的通信  等待任务队列有空余   wait   wait_for   wait_until
@@ -66,7 +63,7 @@ void ThreadPool::submitTask(std::shared_ptr<Task> sp) {
         // 表示notFull_等待1s种，条件依然没有满足
         std::cerr << "task queue is full, submit task fail." << std::endl;
         // return task->getResult();  // Task  Result   线程执行完task，task对象就被析构掉了
-        return;
+        return Result(sp, false);
     }
 
     // 线程的通信 等待
@@ -79,6 +76,7 @@ void ThreadPool::submitTask(std::shared_ptr<Task> sp) {
     taskSize_++;
     //因为新放进了任务，任务队列肯定不空，在notEmpty上面通知
     notEmpty_.notify_all();
+    return Result(sp);
 }
 
 // 开启线程池
@@ -137,8 +135,8 @@ void ThreadPool::threadFunc()  // 线程函数返回，相应的线程也就结�
         }     // 就应该把锁释放掉
         // 当前线程负责执行这个任务
         if (task != nullptr) {
-            task->run(); // 执行任务；把任务的返回值setVal方法给到Result
-//            task->exec();
+//            task->run(); // 执行任务；把任务的返回值setVal方法给到Result
+            task->exec();
         }
 
     }
@@ -170,4 +168,44 @@ int Thread::getId() const {
 
 bool ThreadPool::checkRunningState() const {
     return isPoolRunning_;
+}
+
+
+/////////////////   Result方法的实现
+Result::Result(std::shared_ptr<Task> task, bool isValid)
+        : isValid_(isValid), task_(task) {
+    task_->setResult(this);
+}
+
+
+Any Result::get() // 用户调用的
+{
+    if (!isValid_) {
+        return "";
+    }
+    sem_.wait(); // task任务如果没有执行完，这里会阻塞用户的线程
+    return std::move(any_);
+}
+
+
+void Result::setVal(Any any)  // 谁调用的呢？？？
+{
+    // 存储task的返回值
+    this->any_ = std::move(any);
+    sem_.post(); // 已经获取的任务的返回值，增加信号量资源
+}
+
+
+/////////////////  Task方法实现
+Task::Task()
+        : result_(nullptr) {}
+
+void Task::exec() {
+    if (result_ != nullptr) {
+        result_->setVal(run()); // 这里发生多态调用
+    }
+}
+
+void Task::setResult(Result *res) {
+    result_ = res;
 }
