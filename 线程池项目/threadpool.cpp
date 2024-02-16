@@ -10,6 +10,10 @@ const int TASK_MAX_THRESHHOLD = INT32_MAX;
 const int THREAD_MAX_THRESHHOLD = 1024;
 const int THREAD_MAX_IDLE_TIME = 60; // 单位：秒
 
+Task::Task() {
+
+};
+
 
 // 线程池构造
 ThreadPool::ThreadPool()
@@ -109,6 +113,10 @@ void ThreadPool::threadFunc()  // 线程函数返回，相应的线程也就结�
             std::unique_lock<std::mutex> lock(taskQueMtx_);
             // 等待not empty
             // 等待notEmpty条件
+
+            std::cout << "tid:" << std::this_thread::get_id()
+                      << "尝试获取任务..." << std::endl;
+
             notEmpty_.wait(lock, [&]() -> bool {
                 return taskQue_.size() > 0;
             });
@@ -116,11 +124,9 @@ void ThreadPool::threadFunc()  // 线程函数返回，相应的线程也就结�
             task = taskQue_.front();
             taskQue_.pop();
             taskSize_--;
+            std::cout << "tid:" << std::this_thread::get_id()
+                      << "获取任务成功..." << std::endl;
 
-            // 如果依然有剩余任务，继续通知其它得线程执行任务
-            if (taskQue_.size() > 0) {
-                notEmpty_.notify_all();
-            }
 
             // 如果依然有剩余任务，继续通知其它得线程执行任务
             if (taskQue_.size() > 0) {

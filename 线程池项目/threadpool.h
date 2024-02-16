@@ -4,6 +4,7 @@
 
 #ifndef PLAY_WITH_REACTOR_THREADPOOL_H
 #define PLAY_WITH_REACTOR_THREADPOOL_H
+
 #include <iostream>
 #include <vector>
 #include <queue>
@@ -21,9 +22,9 @@ public:
 
     ~Task() = default;
 
-    void exec();
+//    void exec();
 
-    void setResult(int *res);
+//    void setResult(int *res);
 
     // 用户可以自定义任意任务类型，从Task继承，重写run方法，实现自定义任务处理
     virtual void run() = 0;
@@ -31,6 +32,9 @@ public:
 //private:
 //    Result *result_; // Result对象的声明周期 》 Task的
 };
+
+
+
 
 // 线程池支持的模式
 enum class PoolMode {
@@ -62,7 +66,19 @@ private:
     int threadId_;  // 保存线程id
 };
 
+/*
+example:
+ThreadPool pool;
+pool.start(4);
 
+class MyTask : public Task
+{
+	public:
+		void run() { // 线程代码... }
+};
+
+pool.submitTask(std::make_shared<MyTask>());
+*/
 class ThreadPool {
 public:
     // 线程池构造
