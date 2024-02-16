@@ -4,5 +4,5 @@ project(play_with_thread_pool)
 set(CMAKE_CXX_STANDARD 11)
 
 
-add_executable(play_with_reactor threadpool.cpp threadpool.h )
+add_executable(play_with_reactor threadpool.cpp threadpool.h main.cpp)
 
