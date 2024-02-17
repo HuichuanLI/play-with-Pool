@@ -4,3 +4,7 @@
 .DS_Store
 
 线程池项目/cmake-build-debug/
+
+内存池/nginx_memory_pool/cmake-build-debug/CMakeFiles/
+
+内存池/nginx_memory_pool/cmake-build-debug/
