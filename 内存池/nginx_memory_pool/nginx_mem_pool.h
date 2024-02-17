@@ -13,7 +13,6 @@
 // 类型重定义
 using u_char = unsigned char;
 using ngx_uint_t = unsigned int;
-
 // 类型前置声明
 struct ngx_pool_s;
 
@@ -56,6 +55,24 @@ struct ngx_pool_s {
 };
 
 
+// 把数值d调整到临近的a的倍数
+inline size_t ngx_align(size_t d, size_t a) {
+    return (((d) + (a - 1)) & ~(a - 1));
+}
+
+
+// 把指针p调整到a的临近倍数
+inline u_char *ngx_align_ptr(void *p, int a) {
+    return (u_char *) (((uintptr_t) (p) + ((uintptr_t) a - 1)) &
+                       ~((uintptr_t) a - 1));
+}
+
+// buf缓冲区清零
+inline void ngx_memzero(void *buf, size_t n) {
+    memset(buf, 0, n);
+}
+
+
 // 默认一个物理页面的大小4K
 const int NGX_PAGESIZE = 4096;
 // ngx小块内存池可分配的最大空间
@@ -70,7 +87,6 @@ const int NGX_MIN_POOL_SIZE =
                   NGX_POOL_ALIGNMENT);
 // 小块内存分配考虑字节对齐时的单位
 const size_t NGX_ALIGNMENT = sizeof(unsigned long);
-
 
 
 class ngx_mem_pool {
@@ -101,6 +117,14 @@ public:
 
 private:
     ngx_pool_s *pool; //指向ngx内存池的入口指针
+    // 小块内存分配
+    void *ngx_palloc_small(size_t size, ngx_uint_t align);
+
+    // 大块内存分配
+    void *ngx_palloc_large(size_t size);
+
+    //分配新的小块内存池
+    void *ngx_palloc_block(size_t size);
 
 };
 
