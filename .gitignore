@@ -10,3 +10,7 @@
 内存池/nginx_memory_pool/cmake-build-debug/
 
 内存池/stl_alloc/cmake-build-debug/
+
+对象池/cmake-build-debug/CMakeFiles/
+
+对象池/cmake-build-debug/
