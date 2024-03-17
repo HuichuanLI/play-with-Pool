@@ -57,5 +57,4 @@ int main() {
     std::cout << (sum1 + sum2) << std::endl;
 
     std::cout << "main over!" << std::endl;
-    getchar();
 }

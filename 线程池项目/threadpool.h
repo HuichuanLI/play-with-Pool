@@ -153,7 +153,7 @@ enum class PoolMode {
 class Thread {
 public:
     // 线程函数对象类型
-    using ThreadFunc = std::function<void()>;
+    using ThreadFunc = std::function<void(int)>;
 
     // 线程构造
     Thread(ThreadFunc func);
@@ -215,14 +215,14 @@ public:
 
 private:
     // 定义线程函数
-    void threadFunc();
+    void threadFunc(int threadid);
 
     // 检查pool的运行状态
     bool checkRunningState() const;
 
 private:
-    std::vector<std::unique_ptr<Thread>> threads_; // 线程列表
-//    std::unordered_map<int, std::unique_ptr<Thread>> threads_; // 线程列表
+//    std::vector<std::unique_ptr<Thread>> threads_; // 线程列表
+    std::unordered_map<int, std::unique_ptr<Thread>> threads_; // 线程列表
 
     int initThreadSize_;  // 初始的线程数量
     int threadSizeThreshHold_; // 线程数量上限阈值
